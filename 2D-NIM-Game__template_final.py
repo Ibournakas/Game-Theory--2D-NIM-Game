@@ -235,7 +235,7 @@ def getPlayerMove(nimBoard, diagonalCells, initialNimBoard):
 
                                     if num2 in possibleMoves and checkValidMove(initialNimBoard, choice + [num2]):
                                         choice.append(num2)
-                                        if checkValidMove2(initialNimBoard, choice):
+                                        if checkValidMove2(choice):
                                             return choice
                                         else:
                                             print(bcolors.ERROR +
@@ -247,7 +247,7 @@ def getPlayerMove(nimBoard, diagonalCells, initialNimBoard):
                                 else:
                                     print(bcolors.MSG +
                                           'Your input was not an integer so your turn was terminated.' + bcolors.ENDC)
-                                    if checkValidMove2(initialNimBoard, choice):
+                                    if checkValidMove2(choice):
                                         print(bcolors.GREEN +
                                               'Move executed succesfully!' + bcolors.ENDC)
                                         return choice
@@ -261,14 +261,9 @@ def getPlayerMove(nimBoard, diagonalCells, initialNimBoard):
                     else:
                         print(bcolors.MSG +
                               'Your input was not an integer so your turn was terminated.' + bcolors.ENDC)
-                        if checkValidMove2(initialNimBoard, choice):
-                            print(bcolors.GREEN +
-                                  'Move executed succesfully!' + bcolors.ENDC)
-                            return choice
-                        else:
-                            print(bcolors.ERROR +
-                                  'ERROR 8: The tiles you chose were not consecutive. Try again from the beginning...' + bcolors.ENDC)
-                            return False
+                        print(bcolors.GREEN +
+                              'Move executed succesfully!' + bcolors.ENDC)
+                        return choice
             else:
                 print(bcolors.ERROR +
                       'ERROR 6: The tile you chose is not available. Try again...' + bcolors.ENDC)
@@ -504,7 +499,7 @@ def getComputerMove_copycat(nimBoard, initialNimBoard, playermoves):
 
 
 def copycatMoreThanFiveLeft(nimBoard, initialNimBoard, playermoves):
-    # This function returns the copycat move from what the player played. If the computer goes first or the player move can be copied then the computer chooses either a random move with getComputerMove_random or a first free move with getComputerMove_firstfit. 
+    # This function returns the copycat move from what the player played. If the computer goes first or the player move can be copied then the computer chooses either a random move with getComputerMove_random or a first free move with getComputerMove_firstfit.
     # If the players move cant be copied then the move randomly chosen must contain as many tiles as the player move or less, but not more.
     # return the first available tile to start the move
     possibleMoves = getAvailableCells(nimBoard)
@@ -579,7 +574,7 @@ def twoCellsLeft(mode, nimBoard, initialNimBoard, possibleMoves, playermoves):
     if possibleMoves[1] in getCellNeighbours(possibleMoves[0], initialNimBoard) and possibleMoves[0] not in getDiagonalCells(initialNimBoard) and possibleMoves[1] not in getDiagonalCells(initialNimBoard):
         choice2.extend([possibleMoves[0], possibleMoves[1]])
         result_type = 'specific'
-    # else if the cells can't both be chosen (because at least one of them is on the diagonal or they are not consecutive)
+    # else if the cells can't both be chosen (because one of them is on the diagonal or they are not consecutive)
     # then the computer continues playing according to its previous strategy
     else:
         if mode == 'random':
@@ -595,9 +590,8 @@ def twoCellsLeft(mode, nimBoard, initialNimBoard, possibleMoves, playermoves):
         choice2.extend(t_choice)
     return choice2
 
+
 # a function that handles the case of exactly 3 available cells left
-
-
 def threeCellsLeft(mode, nimBoard, initialNimBoard, possibleMoves, playermoves):
     global result_type
     result_type = 'undefined'
@@ -608,14 +602,11 @@ def threeCellsLeft(mode, nimBoard, initialNimBoard, possibleMoves, playermoves):
         if getCellwithNumNeighbours(1, initialNimBoard, possibleMoves) == False:
             if mode == 'random':
                 t_choice = randomMoreThanFiveLeft(nimBoard, initialNimBoard)
-                result_type = 'random'
             elif mode == 'first free':
                 t_choice = firstfreeMoreThanFiveLeft(nimBoard, initialNimBoard)
-                result_type = 'first free'
             elif mode == 'copycat':
                 t_choice = copycatMoreThanFiveLeft(
                     nimBoard, initialNimBoard, playermoves)
-                result_type = 'copycat'
             choice3.extend(t_choice)
         # if there is a cell with 1 neighbour (neither of them in the diagonal), then that's the computer's next move
         else:
@@ -628,9 +619,7 @@ def threeCellsLeft(mode, nimBoard, initialNimBoard, possibleMoves, playermoves):
         t_choice = getCellwithNumNeighbours(2, initialNimBoard, possibleMoves)
         # check if the three cells are consecutive and the move is legal and not on the diagonal if yes then the computer chooses the three cells and wins
         temp = []
-        temp.append(possibleMoves[0])
-        temp.append(possibleMoves[1])
-        temp.append(possibleMoves[2])
+        temp.extend(possibleMoves)
         if (abs(possibleMoves[0] - possibleMoves[1]) == 1 or abs(possibleMoves[0] - possibleMoves[1]) == N) and (abs(possibleMoves[1] - possibleMoves[2]) == 1 or abs(possibleMoves[1] - possibleMoves[2]) == N) and possibleMoves[0] not in getDiagonalCells(initialNimBoard) and possibleMoves[1] not in getDiagonalCells(initialNimBoard) and possibleMoves[2] not in getDiagonalCells(initialNimBoard) and checkValidMove(initialNimBoard, temp):
             choice3.extend(temp)
             result_type = 'consecutive'
@@ -665,9 +654,7 @@ def fourCellsLeft(mode, nimBoard, initialNimBoard, possibleMoves, playermoves):
                                  initialNimBoard, checklist, playermoves)
                     # checks if the 2 cells that were previously chosen give a winning move
                     if result_type == 'random' or result_type == 'first free' or result_type == 'copycat':
-                        choice = twoCellsLeft(
-                            mode, nimBoard, initialNimBoard, t_posmoves, playermoves)
-                        choice4.extend(choice)
+                        choice4.extend(t_posmoves)
                         return choice4
                 del t_posmoves[1]
 
@@ -714,9 +701,7 @@ def fiveCellsLeft(mode, nimBoard, initialNimBoard, possibleMoves, playermoves):
                                          initialNimBoard, checklist, playermoves)
                             # checks if the 3 cells that were previously chosen give a winning move
                             if result_type == 'random' or result_type == 'first free' or result_type == 'copycat':
-                                choice = threeCellsLeft(
-                                    mode, nimBoard, initialNimBoard, t_posmoves, playermoves)
-                                choice5.extend(choice)
+                                choice5.extend(t_posmoves)
                                 return choice5
                         del t_posmoves[2]
                 del t_posmoves[1]
@@ -731,11 +716,8 @@ def fiveCellsLeft(mode, nimBoard, initialNimBoard, possibleMoves, playermoves):
                 checklist.append(possibleMoves[j])
         fourCellsLeft(mode, nimBoard, initialNimBoard, checklist, playermoves)
         if result_type4 == 'random' or result_type4 == 'first free' or result_type4 == 'copycat':
-            choice = possibleMoves[i]
-            choice5.append(choice)
+            choice5.append(t_posmoves[0])
             return choice5
-
-    return choice5
 
 
 # a function that returns, if it exists, a cell with exactly num neighbours
@@ -751,56 +733,10 @@ def getCellwithNumNeighbours(num, initialNimBoard, possibleMoves):
 # a function that returns the number of neighbours of a given cell
 def getNumberofNeighbours(cell, initialNimBoard, possibleMoves):
     count = 0
-    row1 = getRowCells(initialNimBoard, 1)
-    col1 = getColumnCells(initialNimBoard, 1)
-    rowN = getRowCells(initialNimBoard, N*N - N + 1)
-    colN = getColumnCells(initialNimBoard, N*N)
+    neighbours = getCellNeighbours(cell, initialNimBoard)
 
-    # cells of first row
-    if (cell in row1) and cell != N:
-        if cell+1 in possibleMoves:
-            count = count + 1
-        if cell+N in possibleMoves:
-            count = count + 1
-        if cell != 1:
-            if cell-1 in possibleMoves:
-                count = count + 1
-    # cells of first column
-    elif cell in col1:
-        if cell+1 in possibleMoves:
-            count = count + 1
-        if cell-N in possibleMoves:
-            count = count + 1
-        if cell != (N*N - N + 1):
-            if cell+N in possibleMoves:
-                count = count + 1
-    # cells of last row
-    elif cell in rowN:
-        if cell-1 in possibleMoves:
-            count = count + 1
-        if cell-N in possibleMoves:
-            count = count + 1
-        if cell != N*N:
-            if cell+1 in possibleMoves:
-                count = count + 1
-    # cells of last column
-    elif cell in colN:
-        if cell-1 in possibleMoves:
-            count = count + 1
-        if cell+N in possibleMoves:
-            count = count + 1
-        if cell != N:
-            if cell-N in possibleMoves:
-                count = count + 1
-    # other cells
-    else:
-        if cell-1 in possibleMoves:
-            count = count + 1
-        if cell+1 in possibleMoves:
-            count = count + 1
-        if cell-N in possibleMoves:
-            count = count + 1
-        if cell+N in possibleMoves:
+    for i in range(0, len(neighbours)):
+        if neighbours[i] in possibleMoves:
             count = count + 1
     return count
 
@@ -845,10 +781,9 @@ def getCellNeighbours(cell, initialNimBoard):
         neighbours.append(cell+N)
     return neighbours
 
+
 # define a function that, given a vector of tiles, checks if the move is valid (if all tiles are in the same row or column,
 # and not on the diagonal)
-
-
 def checkValidMove(nimBoard, move):
     # get the length of the move
     # print(move)
@@ -886,7 +821,7 @@ def checkValidMove(nimBoard, move):
 
 
 # define a function that, given a vector of tiles, checks if the move is valid (if all tiles are consecutive)
-def checkValidMove2(nimBoard, move):
+def checkValidMove2(move):
     length = len(move)
     move.sort(reverse=False)    # arranges the move list into ascending order
     # check if the move is valid
@@ -922,8 +857,6 @@ def checkValidMove2(nimBoard, move):
                 return True
             else:
                 return False
-    elif length == 1:
-        return True
 
 
 # define a function that returns the name of the cells in the same row of the nimboard as the cell with the given name
