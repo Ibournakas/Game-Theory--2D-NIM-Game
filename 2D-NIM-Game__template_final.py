@@ -345,8 +345,6 @@ def randomMoreThanFiveLeft(nimBoard, initialNimBoard):
         to_where = 'up'
     else:
         to_where = 'down'
-
-    # print(num, where, to_where,tile)
     i = 1
     if (num > 1 and tile not in getDiagonalCells(initialNimBoard)):
         while i < num:
@@ -461,26 +459,9 @@ def firstfreeMoreThanFiveLeft(nimBoard, initialNimBoard):
 
     if (num > 1 and tile not in getDiagonalCells(initialNimBoard)):
         for i in range(1, num):
-            # flag=-0
-
             # check if the next move is valid
-            if where == 'row' and to_where == 'up':
-                next_tile = tile - 1
-                if next_tile in possibleMoves and checkValidMove(initialNimBoard, choice + [next_tile]):
-                    tile = next_tile
-                    choice.append(tile)
-                else:
-                    break
-
-            elif where == 'row' and to_where == 'down':
+            if where == 'row' and to_where == 'down':
                 next_tile = tile + 1
-                if next_tile in possibleMoves and checkValidMove(initialNimBoard, choice + [next_tile]):
-                    tile = next_tile
-                    choice.append(tile)
-                else:
-                    break
-            elif where == 'column' and to_where == 'up':
-                next_tile = tile - int(math.sqrt(len(nimBoard)))
                 if next_tile in possibleMoves and checkValidMove(initialNimBoard, choice + [next_tile]):
                     tile = next_tile
                     choice.append(tile)
@@ -523,7 +504,8 @@ def getComputerMove_copycat(nimBoard, initialNimBoard, playermoves):
 
 
 def copycatMoreThanFiveLeft(nimBoard, initialNimBoard, playermoves):
-    # This function returns the copycat move from what the player played. If the computer goes first or the player move can be copied then the computer chooses either a random move with getRandMove or a first free move with getComputerMove_firstfit. If the players move cant be copied then the move randomly chosen must contain as many tiles as the player move or less, but not more.
+    # This function returns the copycat move from what the player played. If the computer goes first or the player move can be copied then the computer chooses either a random move with getComputerMove_random or a first free move with getComputerMove_firstfit. 
+    # If the players move cant be copied then the move randomly chosen must contain as many tiles as the player move or less, but not more.
     # return the first available tile to start the move
     possibleMoves = getAvailableCells(nimBoard)
     init_possibleMoves = getAvailableCells(initialNimBoard)
@@ -547,7 +529,7 @@ def copycatMoreThanFiveLeft(nimBoard, initialNimBoard, playermoves):
                     if diagon[len(diagon)-1-i] in possibleMoves:
                         choice.append(diagon[len(diagon)-1-i])
                     else:
-                        # check first if any of the elements of the diagonal are availablemoves
+                        # check first if any of the elements of the diagonal are possible moves
                         # if not then choose a random move
                         if not any(x in possibleMoves for x in diagon):
                             choice.append(possibleMoves[0])
